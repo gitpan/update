@@ -1,0 +1,22 @@
+#! perl
+use strict;
+my $good;
+my $file = "auto/Tk/.packlist";
+
+for my $dir (@INC) {
+  print "Trying $dir/Tk/.packlist...\n";
+  $good = $dir, last if -f "$dir/$file";
+}
+die "Cannot find Tk/.packlist" unless defined $good;
+print "Found Tk/.packlist at `$good/auto'.\n";
+
+open L, "$good/$file" or die "open: $!";
+my @list = <L>;
+close L or die "close: $!";
+chomp @list;
+chmod 0666, @list or die "chmod list: $!";
+unlink @list or die "unlink list: $!";
+chmod 0666, "$good/$file.old" or die "chmod "$good/$file.old": $!"
+    if -f "$good/$file.old";
+unlink "$good/$file.old";
+rename "$good/$file",  "$good/$file.old" or die "rename: $!";
